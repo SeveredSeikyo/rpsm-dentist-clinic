@@ -1,0 +1,93 @@
+name: Node.js CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Matches your dependency compatibility
+          cache: 'npm' # Cache npm dependencies for faster runs
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci # Use npm ci for clean, reproducible installs
+
+      # Placeholder for linting (uncomment and configure if ESLint is added)
+      # - name: Run linting
+      #   run: npm run lint
+      #   continue-on-error: true # Allow pipeline to continue if linting fails
+
+      # Set up environment variables
+      - name: Set up .env file
+        run: |
+          echo "SMTP_HOST=${{ secrets.SMTP_HOST }}" >> .env
+          echo "SMTP_PORT=${{ secrets.SMTP_PORT }}" >> .env
+          echo "SMTP_USER=${{ secrets.SMTP_USER }}" >> .env
+          echo "SMTP_PASS=${{ secrets.SMTP_PASS }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "DATABASE_URL=:memory:" >> .env # Use in-memory SQLite for testing
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+      # Placeholder for running tests (uncomment and configure if tests are added)
+      # - name: Run tests
+      #   run: npm test
+      #   env:
+      #     NODE_ENV: test
+
+      # Run the application (to verify it starts)
+      - name: Start application
+        run: |
+          npm start &
+          sleep 5 # Wait for server to start
+          curl --retry 3 --retry-delay 5 http://localhost:5000 || exit 1
+        env:
+          NODE_ENV: test
+          PORT: 5000 # Adjust if your app uses a different port
+
+      # Optional: Build step (if you add a build script)
+      # - name: Build application
+      #   run: npm run build
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+      # Optional: Deployment step (uncomment and configure for your platform)
+      # - name: Deploy to Heroku (example)
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      #   uses: akhileshns/heroku-deploy@v3.12.12
+      #   with:
+      #     heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+      #     heroku_app_name: "your-app-name"
+      #     heroku_email: "your-email@example.com"
+
+  # Optional: Additional job for deployment (if needed)
+  # deploy:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #     - name: Deploy
+  #       run: echo "Add deployment steps here (e.g., AWS, Vercel, etc.)"
