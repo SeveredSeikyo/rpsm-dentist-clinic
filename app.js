@@ -90,19 +90,19 @@ function restrictToAny(...roles) {
 
 // Root route: Redirects if logged in
 app.get('/', (req, res) => {
-    const token = req.cookies.jwtToken;
-    if (token) {
-        try {
-            const decoded = jwt.verify(token, JWT_SECRET);
-            let redirectURL = '/';
-            if (decoded.userType === 'dentist') redirectURL = '/dentist';
-            else if (decoded.userType === 'patient') redirectURL = '/patient';
-            else if (decoded.userType === 'staff') redirectURL = '/staff';
-            return res.redirect(redirectURL);
-        } catch (err) {
-            res.clearCookie('jwtToken');
-        }
-    }
+    // const token = req.cookies.jwtToken;
+    // if (token) {
+    //     try {
+    //         const decoded = jwt.verify(token, JWT_SECRET);
+    //         let redirectURL = '/';
+    //         if (decoded.userType === 'dentist') redirectURL = '/dentist';
+    //         else if (decoded.userType === 'patient') redirectURL = '/patient';
+    //         else if (decoded.userType === 'staff') redirectURL = '/staff';
+    //         return res.redirect(redirectURL);
+    //     } catch (err) {
+    //         res.clearCookie('jwtToken');
+    //     }
+    // }
     return res.sendFile(path.join(viewsDir, 'homie.html'));
 });
 
@@ -136,7 +136,7 @@ app.get('/register', (req, res) => {
             const decoded = jwt.verify(token, JWT_SECRET);
             let redirectURL = '/';
             if (decoded.userType === 'dentist') redirectURL = '/dentist';
-            else if (decoded.userType === 'patient') redirectURL = '/appointment';
+            else if (decoded.userType === 'patient') redirectURL = '/patient';
             else if (decoded.userType === 'staff') redirectURL = '/staff';
             return res.redirect(redirectURL);
         } catch (err) {
@@ -146,7 +146,7 @@ app.get('/register', (req, res) => {
     res.sendFile(path.join(viewsDir, 'register.html'));
 });
 
-app.get('/billing', requireAuth('staff'), (req, res) => {
+app.get('/billing', requireAuth('patient'), (req, res) => {
     res.sendFile(path.join(viewsDir, 'billing.html'));
 });
 
@@ -178,7 +178,7 @@ app.get('/records', restrictToAny('staff', 'dentist'), (req, res) => {
     res.sendFile(path.join(viewsDir, 'records.html'));
 });
 
-app.get('/reminders', requireAuth('patient'), (req, res) => {
+app.get('/reminders', requireAuth('staff'), (req, res) => {
     res.sendFile(path.join(viewsDir, 'automatedreminder.html'));
 });
 
@@ -186,8 +186,12 @@ app.get('/appointment', requireAuth('patient'), (req, res) => {
     res.sendFile(path.join(viewsDir, 'appointment.html'));
 });
 
-app.get('/staff-appointments', restrictToAny('staff','dentist'), (req, res) => {
+app.get('/staff-appointments', requireAuth('staff'), (req, res) => {
     res.sendFile(path.join(viewsDir, 'staff-appointments.html'));
+});
+
+app.get('/dentist-appointments', requireAuth('dentist'), (req, res) => {
+    res.sendFile(path.join(viewsDir, 'dentist-appointments.html'));
 });
 
 app.get('/patient', requireAuth('patient'), (req, res) => {
@@ -389,7 +393,7 @@ app.delete('/api/appointments/:id', requireAuth('patient'), async (req, res) => 
 });
 
 // Create reminder
-app.post('/api/reminders', requireAuth('patient'), async (req, res) => {
+app.post('/api/reminders', requireAuth('staff'), async (req, res) => {
     const { email, message, remind_at } = req.body;
     const patient_id = req.user.id;
 
@@ -444,7 +448,7 @@ app.post('/api/reminders', requireAuth('patient'), async (req, res) => {
 });
 
 // Get reminders
-app.get('/api/reminders', requireAuth('patient'), async (req, res) => {
+app.get('/api/reminders', requireAuth('staff'), async (req, res) => {
     try {
         const reminders = await new Promise((resolve, reject) => {
             db.all(
@@ -470,7 +474,7 @@ app.get('/api/reminders', requireAuth('patient'), async (req, res) => {
 });
 
 // Delete reminder
-app.delete('/api/reminders/:id', requireAuth('patient'), async (req, res) => {
+app.delete('/api/reminders/:id', requireAuth('staff'), async (req, res) => {
     const { id } = req.params;
     const patient_id = req.user.id;
 
@@ -728,7 +732,7 @@ app.get('/api/feedback', restrictToAny('patient', 'staff', 'dentist'), async (re
 
 // Patient routes
 // Get patients with appointments (for billing dropdown)
-app.get('/api/patients', restrictToAny('staff', 'dentist'), async (req, res) => {
+app.get('/api/patients', restrictToAny('patient','staff', 'dentist'), async (req, res) => {
     try {
         const patients = await new Promise((resolve, reject) => {
             db.all(
@@ -752,7 +756,7 @@ app.get('/api/patients', restrictToAny('staff', 'dentist'), async (req, res) => 
 });
 
 //GET ALL PATIENTS
-app.get('/api/records/patients', restrictToAny('staff', 'dentist'), async (req, res) => {
+app.get('/api/records/patients', restrictToAny('patient','staff', 'dentist'), async (req, res) => {
     try {
         const patients = await new Promise((resolve, reject) => {
             db.all(
@@ -774,7 +778,7 @@ app.get('/api/records/patients', restrictToAny('staff', 'dentist'), async (req, 
 });
 
 // Delete patient
-app.delete('/api/patients/:id', restrictToAny('staff', 'dentist'), async (req, res) => {
+app.delete('/api/patients/:id', restrictToAny('patient','staff', 'dentist'), async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -799,7 +803,7 @@ app.delete('/api/patients/:id', restrictToAny('staff', 'dentist'), async (req, r
 });
 
 // Get patient appointments
-app.get('/api/patients/:id/appointments', restrictToAny('staff', 'dentist'), async (req, res) => {
+app.get('/api/patients/:id/appointments', restrictToAny('patient','staff', 'dentist'), async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -825,7 +829,7 @@ app.get('/api/patients/:id/appointments', restrictToAny('staff', 'dentist'), asy
 });
 
 // Get patient billing history
-app.get('/api/patients/:id/billings', restrictToAny('staff', 'dentist'), async (req, res) => {
+app.get('/api/patients/:id/billings', restrictToAny('patient','staff', 'dentist'), async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -854,13 +858,9 @@ app.get('/api/patients/:id/billings', restrictToAny('staff', 'dentist'), async (
 });
 
 // Billing routes
-// Serve billing page
-app.get('/billing', requireAuth('staff'), (req, res) => {
-    res.sendFile(path.join(__dirname, 'views', 'billing.html'));
-});
 
 // Get unbilled appointments for a patient
-app.get('/api/patients/:id/unbilled-appointments', requireAuth('staff'), async (req, res) => {
+app.get('/api/patients/:id/unbilled-appointments', requireAuth('patient'), async (req, res) => {
     const { id } = req.params;
 
     try {
@@ -887,7 +887,7 @@ app.get('/api/patients/:id/unbilled-appointments', requireAuth('staff'), async (
 });
 
 // Add billing entry
-app.post('/api/billings', requireAuth('staff'), async (req, res) => {
+app.post('/api/billings', requireAuth('patient'), async (req, res) => {
     const { appointment_id, amount, payment_method } = req.body;
     const staff_id = req.user.id;
 
@@ -944,7 +944,7 @@ app.post('/api/billings', requireAuth('staff'), async (req, res) => {
 });
 
 // Get all billing records
-app.get('/api/billings', requireAuth('staff'), async (req, res) => {
+app.get('/api/billings', requireAuth('patient'), async (req, res) => {
     try {
         const billings = await new Promise((resolve, reject) => {
             db.all(
@@ -972,7 +972,7 @@ app.get('/api/billings', requireAuth('staff'), async (req, res) => {
 });
 
 // Delete billing entry
-app.delete('/api/billings/:id', requireAuth('staff'), async (req, res) => {
+app.delete('/api/billings/:id', requireAuth('patient'), async (req, res) => {
     const { id } = req.params;
 
     try {
