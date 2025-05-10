@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Account Registration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+    <nav id="navbar" class="fixed w-full navbar bg-white shadow-md z-50">
+        <div class="container mx-auto px-4 py-4 flex">
+            <a href="/">
+                <div class="text-2xl font-bold text-blue-600">RPSM Dental Clinic</div>
+            </a>
+        </div>
+    </nav>
+    <div class="bg-gray-100 flex items-center justify-center min-h-screen pt-16">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+            <h1 class="text-2xl font-bold text-center mb-6">Register Account</h1>
+            <form id="register-form" class="space-y-6">
+                <!-- Account Information -->
+                <div>
+                    <h2 class="text-lg font-semibold">Account Information</h2>
+                    <div class="mt-4 space-y-4">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+                            <input type="text" id="username" name="username" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" minlength="4" maxlength="20">
+                        </div>
+                        <div>
+                            <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                            <input type="email" id="email" name="email" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                            <input type="password" id="password" name="password" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:ring-blue-500" minlength="8">
+                        </div>
+                        <div>
+                            <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                            <input type="password" id="confirm_password" name="confirm_password" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="mb-4">
+                            <label for="user-type" class="block text-gray-700 mb-2">User Type</label>
+                            <select name="userType" id="user-type" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <option value="patient">Patient</option>
+                                <option value="dentist">Dentist</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Information -->
+                <div>
+                    <h2 class="text-lg font-semibold">Personal Information</h2>
+                    <div class="mt-4 space-y-4">
+                        <div>
+                            <label for="full_name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="dob" class="block text-sm font-medium text-gray-700">Date of Birth</label>
+                            <input type="date" id="dob" name="dob" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number</label>
+                            <input type="tel" id="phone" name="phone" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Consent -->
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" name="consent" required class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <span class="ml-2 text-sm text-gray-600">I agree to the <a href="/terms" class="text-blue-600 hover:underline">Terms of Service</a> and <a href="/policy" class="text-blue-600 hover:underline">Privacy Policy</a>.</span>
+                    </label>
+                </div>
+
+                <!-- Error Message -->
+                <div id="error-message" class="hidden text-red-600 text-center"></div>
+
+                <!-- Submit Button -->
+                <div class="text-center">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">Create Account</button>
+                </div>
+            </form>
+            <p class="text-center text-sm text-gray-600 mt-4">Already have an account? <a href="/login" class="text-blue-600 hover:underline">Log in</a>.</p>
+        </div>
+
+        <script>
+            // Client-side form validation
+            function validateForm() {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirm_password').value;
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+                if (!passwordRegex.test(password)) {
+                    document.getElementById('error-message').textContent = 'Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.';
+                    document.getElementById('error-message').classList.remove('hidden');
+                    return false;
+                }
+
+                if (password !== confirmPassword) {
+                    document.getElementById('error-message').textContent = 'Passwords do not match.';
+                    document.getElementById('error-message').classList.remove('hidden');
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Handle form submission
+            document.getElementById('register-form').addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                // Run client-side validation
+                if (!validateForm()) {
+                    return;
+                }
+
+                const form = event.target;
+                const data = {
+                    username: form.querySelector('#username').value,
+                    email: form.querySelector('#email').value,
+                    password: form.querySelector('#password').value,
+                    userType: form.querySelector('#user-type').value,
+                    full_name: form.querySelector('#full_name').value,
+                    dob: form.querySelector('#dob').value,
+                    phone: form.querySelector('#phone').value,
+                    consent: form.querySelector('[name="consent"]').checked
+                };
+
+                // Debugging: Log data
+                console.log('Register Data:', data);
+
+                const errorMessageDiv = document.getElementById('error-message');
+
+                try {
+                    const response = await fetch('/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    console.log('Response status:', response.status);
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.log('Error response:', errorData);
+                        errorMessageDiv.textContent = errorData.error || 'An error occurred';
+                        errorMessageDiv.classList.remove('hidden');
+                        return;
+                    }
+
+                    const responseData = await response.json();
+                    window.location.href = responseData.redirect;
+                } catch (error) {
+                    console.error('Fetch error:', error);
+                    errorMessageDiv.textContent = 'An error occurred. Please try again.';
+                    errorMessageDiv.classList.remove('hidden');
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

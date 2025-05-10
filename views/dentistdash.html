@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPSM Dental Clinic - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        .navbar {
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .section {
+            padding: 5rem 1rem;
+            margin-top: 4rem; /* Prevents content from being hidden under fixed navbar */
+        }
+        .form-input {
+            transition: border-color 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+        }
+        .mobile-menu.active {
+            display: flex;
+        }
+        @media (max-width: 768px) {
+            .navbar-links {
+                display: none !important; /* Ensure desktop links are hidden on mobile */
+            }
+            .mobile-menu {
+                display: none; /* Hidden by default */
+            }
+            .mobile-menu.active {
+                display: flex;
+                flex-direction: column;
+                background-color: white;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                padding: 1rem;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .section {
+                padding: 4rem 1rem;
+            }
+            .home-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-menu-button {
+                display: none;
+            }
+            .mobile-menu {
+                display: none !important; /* Ensure mobile menu is hidden on desktop */
+            }
+        }
+    </style>
+</head>
+<body class="bg-blue-100 max-h-screen">
+    <nav id="navbar" class="navbar bg-white shadow-md">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-blue-600">RPSM Dental Clinic</a>
+            <div class="navbar-links space-x-4 hidden md:flex">
+                <a href="/" class="text-gray-700 hover:text-blue-600">Home</a>
+                <a href="/logout" class="text-gray-700 hover:text-blue-600">Logout</a>
+            </div>
+            <button class="mobile-menu-button md:hidden text-gray-700 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <div class="mobile-menu md:hidden">
+                <a href="/" class="text-gray-700 hover:text-blue-600 block py-2">Home</a>
+                <a href="/logout" class="text-gray-700 hover:text-blue-600 block py-2">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="dashboard" class="section text-gray-800 text-left py-16">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl font-bold mb-6" id="welcome-message">Welcome, Dentist</h1>
+            <div class="dashboard-content space-y-6">
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-semibold mb-4 text-blue-600">Manage Schedule</h2>
+                    <p>View, create, and modify dentist schedules. Keep your schedule organized and efficient.</p>
+                    <ul id="appt-records" class="mt-4 list-disc list-inside">
+                    </ul>
+                    <button onclick="window.location.href='/dentist-schedule'" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Go to Schedule</button>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-2xl font-semibold mb-4 text-blue-600">Manage Appointments</h2>
+                    <p>View all patient appointments and their details.</p>
+                    <button onclick="window.location.href='/staff-appointments'" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Go to Appointments</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Function to get a cookie value by name
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        // Function to decode base64url
+        function base64UrlDecode(str) {
+            // Add padding and replace URL-specific characters
+            str = str.replace(/-/g, '+').replace(/_/g, '/');
+            while (str.length % 4) {
+                str += '=';
+            }
+            try {
+                return decodeURIComponent(escape(window.atob(str)));
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // Decode JWT and extract user role and name
+        const token = getCookie('jwtToken');
+        let username = 'User';
+        let userRole = 'User'; // Default role
+
+        if (token) {
+            const parts = token.split('.');
+            if (parts.length === 3) {
+                const payload = base64UrlDecode(parts[1]);
+                if (payload) {
+                    try {
+                        const data = JSON.parse(payload);
+                        console.log(data);
+                        username = data.username || data.name || data.sub || 'User';
+                        userRole = data.role || 'User'; // Assuming 'role' claim exists in the JWT
+                    } catch (e) {
+                        console.error('Failed to parse JWT payload:', e);
+                    }
+                }
+            }
+        }
+
+        // Set welcome message based on role
+        const welcomeMessageElement = document.getElementById('welcome-message');
+        if (userRole === 'dentist') {
+            welcomeMessageElement.textContent = `Welcome, Dr. ${username}`;
+        } else if (userRole === 'staff') {
+            welcomeMessageElement.textContent = `Welcome, ${username}`;
+            // Optionally, customize the dashboard content for staff here
+        } else {
+            welcomeMessageElement.textContent = `Welcome, ${username}`;
+        }
+    </script>
+
+</body>
+</html>

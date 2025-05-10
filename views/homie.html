@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPSM Dental Clinic</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: #f7fafc;
+        }
+        .navbar {
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .section {
+            padding: 6rem 1rem;
+            margin-top: 4rem;
+        }
+        .form-input {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        .form-input:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .mobile-menu {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-menu.active {
+            transform: translateY(0);
+        }
+        .service-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        @media (max-width: 768px) {
+            .navbar-links {
+                display: none;
+            }
+            .section {
+                padding: 4rem 1rem;
+            }
+            .home-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            .contact-form {
+                flex-direction: column;
+            }
+            .contact-form input {
+                width: 100%;
+                border-radius: 0.375rem;
+                margin-bottom: 1rem;
+            }
+            .contact-form button {
+                width: 100%;
+                border-radius: 0.375rem;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-menu-button {
+                display: none;
+            }
+            .mobile-menu {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav id="navbar" class="navbar bg-white">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-2">
+                <span class="text-2xl font-bold text-blue-600">RPSM Dental Clinic</span>
+            </a>
+            <div class="navbar-links hidden md:flex items-center space-x-6">
+                <a href="/" class="text-gray-600 hover:text-blue-600 transition-colors">Home</a>
+                <a href="#contact" class="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
+                <a href="/login" class="text-gray-600 hover:text-blue-600 transition-colors">Login</a>
+                <a href="/register" class="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition-colors">Register</a>
+            </div>
+            <button class="mobile-menu-button md:hidden text-gray-600 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <div class="mobile-menu md:hidden hidden flex-col space-y-2 p-4">
+                <a href="/" class="text-gray-600 hover:text-blue-600 block py-2 transition-colors">Home</a>
+                <a href="#contact" class="text-gray-600 hover:text-blue-600 block py-2 transition-colors">Contact</a>
+                <a href="/login" class="text-gray-600 hover:text-blue-600 block py-2 transition-colors">Login</a>
+                <a href="/register" class="text-gray-600 hover:text-blue-600 block py-2 transition-colors">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="section bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center">
+        <div class="container mx-auto px-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 animate-fade-in">Welcome to RPSM Dental Clinic</h1>
+            <p class="text-lg md:text-xl mb-8 max-w-2xl mx-auto">We combine expert care with a warm, welcoming approach to ensure every visit is comfortable and stress-free. Book your appointment today!</p>
+            <div class="home-buttons flex flex-wrap justify-center gap-4">
+                <a href="/about" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">About Us</a>
+                <a href="/dentist" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">Dentist Dashboard</a>
+                <a href="/staff" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">Staff Dashboard</a>
+                <a href="/records" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">Patients Dashboard</a>
+                <a href="/reminders" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">Patients Reminder</a>
+                <a href="/feedback" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">Patients Feedback</a>
+                <a href="/appointment" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">Appointment Now</a>
+                <a href="/billing" class="bg-white text-blue-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-100 transition-transform transform hover:scale-105">Patients Payment</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">Our Services</h2>
+            <div class="services-grid grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="service-card bg-gray-50 p-6 rounded-xl shadow-md text-center">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">General Dentistry</h3>
+                    <p class="text-gray-600">Routine check-ups, cleanings, and fillings to keep your teeth healthy and strong.</p>
+                </div>
+                <div class="service-card bg-gray-50 p-6 rounded-xl shadow-md text-center">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Cosmetic Dentistry</h3>
+                    <p class="text-gray-600">Teeth whitening, veneers, and more to enhance your smile’s confidence.</p>
+                </div>
+                <div class="service-card bg-gray-50 p-6 rounded-xl shadow-md text-center">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Orthodontics</h3>
+                    <p class="text-gray-600">Braces and aligners for effective teeth straightening and alignment.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="section bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-bold mb-8">Contact Us</h2>
+            <div class="space-y-4 max-w-lg mx-auto mb-8">
+                <p class="text-lg">Phone: 09178891644 / 09985615217</p>
+                <p class="text-lg">Email: rosemarysulitmarzan11@gmail.com</p>
+                <p class="text-lg">Address: 319 Arandia Street, Tunasan, Muntinlupa City</p>
+            </div>
+            <div class="contact-form flex justify-center gap-5">
+                <input id="contact-email" type="email" placeholder="Your Email" class="form-input p-3 rounded-l-md md:rounded-md w-full max-w-md">
+                <button onclick="sendContact()" class="bg-white text-blue-600 p-3 rounded-r-md md:rounded-md hover:bg-gray-100 transition-colors">Send Message</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        // LocalStorage for data persistence
+        let appointments = JSON.parse(localStorage.getItem('appointments')) || [];
+        let patients = JSON.parse(localStorage.getItem('patients')) || [];
+        let billings = JSON.parse(localStorage.getItem('billings')) || [];
+
+        // Book Appointment
+        function bookAppointment() {
+            const name = document.getElementById('appt-name')?.value;
+            const date = document.getElementById('appt-date')?.value;
+            const time = document.getElementById('appt-time')?.value;
+            const dentist = document.getElementById('appt-dentist')?.value;
+
+            if (name && date && time && dentist) {
+                const appt = { id: Date.now(), name, date, time, dentist };
+                appointments.push(appt);
+                localStorage.setItem('appointments', JSON.stringify(appointments));
+                alert('Appointment booked successfully!');
+                updateAppointmentRecords();
+                document.getElementById('appt-name').value = '';
+                document.getElementById('appt-date').value = '';
+                document.getElementById('appt-time').value = '';
+            } else {
+                alert('Please fill all fields.');
+            }
+        }
+
+        // Process Billing
+        function processBilling() {
+            const name = document.getElementById('bill-name')?.value;
+            const service = document.getElementById('bill-service')?.value;
+            const method = document.getElementById('bill-method')?.value;
+
+            if (name && service && method) {
+                const bill = { id: Date.now(), name, service, method, date: new Date().toLocaleDateString() };
+                billings.push(bill);
+                localStorage.setItem('billings', JSON.stringify(billings));
+                alert('Billing processed successfully!');
+                document.getElementById('bill-name').value = '';
+            } else {
+                alert('Please fill all fields.');
+            }
+        }
+
+        // Add Patient
+        function addPatient() {
+            const name = document.getElementById('patient-name')?.value;
+            if (name) {
+                const patient = { id: Date.now(), name };
+                patients.push(patient);
+                localStorage.setItem('patients', JSON.stringify(patients));
+                alert('Patient added successfully!');
+                updatePatientRecords();
+                document.getElementById('patient-name').value = '';
+            } else {
+                alert('Please enter a patient name.');
+            }
+        }
+
+        // Update Appointment Records
+        function updateAppointmentRecords() {
+            const apptList = document.getElementById('appt-records');
+            if (apptList) {
+                apptList.innerHTML = '';
+                appointments.forEach(appt => {
+                    const li = document.createElement('li');
+                    li.className = 'py-2 text-gray-600';
+                    li.textContent = `${appt.name} with ${appt.dentist} on ${appt.date} at ${appt.time}`;
+                    apptList.appendChild(li);
+                });
+            }
+        }
+
+        // Update Patient Records
+        function updatePatientRecords() {
+            const patientList = document.getElementById('patient-records');
+            if (patientList) {
+                patientList.innerHTML = '';
+                patients.forEach(patient => {
+                    const li = document.createElement('li');
+                    li.className = 'py-2 text-gray-600';
+                    li.textContent = patient.name;
+                    patientList.appendChild(li);
+                });
+            }
+        }
+
+        // Send Contact
+        function sendContact() {
+            const email = document.getElementById('contact-email').value;
+            if (email) {
+                alert('Message sent! (This is a placeholder)');
+                document.getElementById('contact-email').value = '';
+            } else {
+                alert('Please enter your email.');
+            }
+        }
+
+        // Initialize records on page load
+        updateAppointmentRecords();
+        updatePatientRecords();
+    </script>
+</body>
+</html>

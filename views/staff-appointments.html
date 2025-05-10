@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Appointment Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        /* Navbar styles */
+        .navbar {
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        .nav-link {
+            color: #6b7280;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .nav-link:hover {
+            color: #3b82f6;
+            background-color: #f0f0f0;
+        }
+        .nav-logout {
+            color: #6b7280;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .nav-logout:hover {
+            color: #dc2626;
+            background-color: #f0f0f0;
+        }
+
+        .menu-icon {
+            display: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #6b7280;
+            margin: 5px 0;
+            border-radius: 0.375rem;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .menu-icon.active .bar:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .menu-icon.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-icon.active .bar:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+                margin-top: 1rem;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                padding-bottom: 1rem;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-link {
+                padding: 0.75rem 1rem;
+                width: 100%;
+                text-align: center;
+            }
+            .menu-icon {
+                display: block;
+            }
+            .navbar-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .menu-icon {
+                display: none;
+            }
+            .nav-links {
+                display: flex;
+                flex-direction: row;
+            }
+        }
+
+        .section {
+            padding: 5rem 1rem;
+            margin-top: 4rem;
+        }
+
+        .record-item {
+            padding: 1rem;
+            background-color: #f7fafc;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav id="navbar" class="navbar bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex-wrap">
+            <div class="navbar-content">
+                <a href="/" class="text-2xl font-bold text-blue-600">RPSM Dental Clinic</a>
+                <div class="flex items-center">
+                    <div class="menu-icon" id="menu-icon">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="nav-links" id="nav-links">
+                        <a href="/" class="nav-link">Dashboard</a>
+                        <a href="/logout" class="nav-logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section id="appointment-section" class="section">
+        <div class="container mx-auto">
+            <h1 class="text-3xl font-bold text-center mb-8">Manage Appointments</h1>
+
+            <div class="records-container max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-semibold mb-4 text-center">All Appointment Records</h2>
+                <div id="appointmentRecords" class="space-y-4"></div>
+                <p id="error" class="mt-4 text-center text-red-600 hidden"></p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Mobile menu toggle
+        const menuIcon = document.getElementById('menu-icon');
+        const navLinks = document.getElementById('nav-links');
+
+        menuIcon.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            menuIcon.classList.toggle('active');
+        });
+
+        // Initialize appointment records on page load
+        document.addEventListener('DOMContentLoaded', updateAppointmentRecords);
+
+        async function updateAppointmentRecords() {
+            try {
+                const response = await fetch('/api/appointments', {
+                    credentials: 'include' // Send cookies (jwtToken)
+                });
+                if (!response.ok) {
+                    throw new Error('Failed to fetch appointments');
+                }
+                const appointments = await response.json();
+                const appointmentRecordsDiv = document.getElementById('appointmentRecords');
+                appointmentRecordsDiv.innerHTML = '';
+
+                if (appointments.length === 0) {
+                    appointmentRecordsDiv.innerHTML = '<p class="text-center text-gray-500">No appointment records available.</p>';
+                    return;
+                }
+
+                appointments.forEach(appointment => {
+                    const appointmentDiv = document.createElement('div');
+                    appointmentDiv.className = 'record-item';
+                    appointmentDiv.innerHTML = `
+                        <div class="flex justify-between items-center flex-wrap gap-4">
+                            <div>
+                                <p class="font-medium">${appointment.full_name}</p>
+                                <p class="text-sm text-gray-600">${appointment.procedure} on ${appointment.date} at ${appointment.time}</p>
+                                <p class="text-sm text-gray-600">${appointment.email}</p>
+                            </div>
+                        </div>
+                    `;
+                    appointmentRecordsDiv.appendChild(appointmentDiv);
+                });
+            } catch (err) {
+                console.error('Error updating appointment records:', err.message);
+                document.getElementById('error').textContent = 'Error loading appointments.';
+                document.getElementById('error').classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>

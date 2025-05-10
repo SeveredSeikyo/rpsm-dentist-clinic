@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RPSM Dental Clinic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Navbar styles */
+        .navbar {
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem; /* Increased gap for better spacing */
+        }
+        .nav-link {
+            color: #6b7280;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem; /* Increased padding */
+            border-radius: 0.5rem;  /* More rounded corners */
+            transition: color 0.2s ease, background-color 0.2s ease;
+            font-weight: 500; /* Medium font weight for links */
+        }
+        .nav-link:hover {
+            color: #3b82f6;
+            background-color: #f0f0f0;
+        }
+        .nav-logout {
+            color: #6b7280;
+            text-decoration: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            font-weight: 500;
+        }
+        .nav-logout:hover{
+             color: #dc2626;
+            background-color: #f0f0f0;
+        }
+
+        .menu-icon {
+            display: none;
+            cursor: pointer;
+            padding: 0.75rem; /* Increased padding */
+        }
+
+        .bar {
+            width: 28px; /* Increased width */
+            height: 3px;
+            background-color: #6b7280;
+            margin: 6px 0; /* Increased margin */
+            border-radius: 0.5rem; /* More rounded corners */
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .menu-icon.active .bar:nth-child(1) {
+            transform: translateY(10px) rotate(45deg); /* Adjusted transform */
+        }
+
+        .menu-icon.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-icon.active .bar:nth-child(3) {
+            transform: translateY(-10px) rotate(-45deg); /* Adjusted transform */
+        }
+
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 0.75rem; /* Adjusted gap */
+                width: 100%;
+                margin-top: 1rem;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                padding-bottom: 1.5rem; /* Increased padding */
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-link {
+                padding: 1rem 1.5rem; /* Increased padding */
+                width: 100%;
+                text-align: center;
+            }
+             .menu-icon {
+                display: block;
+            }
+            .navbar-content{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .menu-icon {
+                display: none;
+            }
+            .nav-links {
+                display: flex;
+                flex-direction: row;
+            }
+        }
+
+        .section {
+            padding: 6rem 0; /* Increased vertical padding */
+            margin-top: 4rem;
+        }
+
+        .container {
+            max-width: 1000px; /* Increased max-width */
+        }
+
+        .about-content {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .about-text {
+            font-size: 1.1rem; /* Slightly larger font size */
+            line-height: 2; /* Improved line height for readability */
+            color: #4a5568; /* Slightly darker text */
+            max-width: 800px; /* Increased max-width for text */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+    </style>
+</head>
+<body class="bg-gray-100">
+    <nav id="navbar" class="navbar bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex-wrap">
+            <div class="navbar-content">
+                <a href="/" class="text-2xl font-bold text-blue-600">RPSM Dental Clinic</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="about" class="section bg-white">
+        <div class="container mx-auto px-4">
+            <div class="about-content">
+                <h2 class="text-3xl font-bold text-center mb-6 text-blue-700">About Us</h2>
+                <p class="about-text">
+                    Welcome to RPSM Dental Clinic, your trusted partner for comprehensive dental care in Tunasan, Muntinlupa City, Philippines. We are committed to providing a wide range of high-quality dental treatments to help you achieve and maintain a healthy, beautiful smile.
+                </p>
+            </div>
+            <div class="about-text">
+
+                <p class="mb-4">
+                    Our services include:
+                </p>
+                <ul class="list-disc list-inside mb-6">
+                    <li>Orthodontic Treatment</li>
+                    <li>Scaling and Polishing</li>
+                    <li>Braces Repair</li>
+                    <li>Restoration</li>
+                    <li>Artificial Teeth</li>
+                </ul>
+                <p>
+                    We are open from 9:00 AM to 4:00 PM and are located at 319 Arandia Street, Tunasan, Muntinlupa City.  We also actively engage with our community through our Facebook page, where we share updates and information.
+                </p>
+                 <p class="mt-4">
+                    Please don't hesitate to contact us for appointments or any inquiries. We look forward to serving you!
+                </p>
+            </div>
+        </div>
+    </section>
+</body>
+</html>

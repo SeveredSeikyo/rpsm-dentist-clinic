@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dentist Schedule</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-color: #f7fafc;
+        }
+        .navbar {
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        .section {
+            padding: 6rem 1rem;
+            margin-top: 4rem;
+        }
+        .form-input {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #e5e7eb;
+        }
+        .form-input:focus {
+            border-color: #2563eb;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        .mobile-menu {
+            transform: translateY(-100%);
+            transition: transform 0.3s ease-in-out;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .mobile-menu.active {
+            transform: translateY(0);
+        }
+        @media (max-width: 768px) {
+            .navbar-links {
+                display: none;
+            }
+            .section {
+                padding: 4rem 1rem;
+            }
+            .schedule-form {
+                flex-direction: column;
+            }
+            .schedule-form input,
+            .schedule-form button {
+                width: 100%;
+                margin-bottom: 1rem;
+            }
+        }
+        @media (min-width: 769px) {
+            .mobile-menu-button {
+                display: none;
+            }
+            .mobile-menu {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <nav id="navbar" class="navbar bg-white">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-2">
+                <span class="text-2xl font-bold text-blue-600">RPSM Dental Clinic</span>
+            </a>
+            <div class="navbar-links hidden md:flex items-center space-x-6">
+                <a href="/dentist" class="text-gray-600 hover:text-blue-600 transition-colors">Dashboard</a>
+                <a href="/logout" class="nav-logout">Logout</a>
+            </div>
+            <button class="mobile-menu-button md:hidden text-gray-600 focus:outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+            <div class="mobile-menu md:hidden hidden flex-col space-y-2 p-4">
+                <a href="/dentist" class="text-gray-600 hover:text-blue-600 transition-colors">Dashboard</a>
+                <a href="/logout" class="nav-logout">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Schedules Section -->
+    <section id="schedules" class="section bg-white">
+        <div class="container mx-auto px-4">
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-12 text-gray-800">My Schedule</h2>
+            <!-- Dentist Schedule -->
+            <div class="max-w-2xl mx-auto">
+                <h3 class="text-2xl font-semibold mb-4 text-gray-800">Current Schedule</h3>
+                <ul id="dentist-schedule" class="bg-gray-50 p-6 rounded-xl shadow-md text-gray-600"></ul>
+            </div>
+            <!-- Form to Add/Update Schedule -->
+            <div class="mt-12 max-w-2xl mx-auto text-center">
+                <h3 class="text-xl font-semibold mb-4 text-gray-800">Update Schedule</h3>
+                <form id="schedule-form" class="schedule-form flex flex-col sm:flex-row justify-center gap-4">
+                    <input type="text" id="days" placeholder="Days (e.g., Mon-Sun)" class="form-input p-3 rounded-md">
+                    <input type="text" id="hours" placeholder="Hours (e.g., 9 AM - 4 PM)" class="form-input p-3 rounded-md">
+                    <button type="submit" class="bg-blue-600 text-white p-3 rounded-md hover:bg-blue-700 transition-colors">Save</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- JavaScript for Navbar and Schedule Functionality -->
+    <script>
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            navbar.classList.toggle('scrolled', window.scrollY > 50);
+        });
+
+        // Mobile menu toggle
+        const mobileMenuButton = document.querySelector('.mobile-menu-button');
+        const mobileMenu = document.querySelector('.mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('active');
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu when clicking a link
+        mobileMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+                mobileMenu.classList.remove('active');
+            });
+        });
+
+        // Fetch schedules on page load
+        async function loadSchedules() {
+            try {
+                const response = await fetch('/api/schedules', {
+                    credentials: 'include'
+                });
+                if (!response.ok) throw new Error('Failed to fetch schedules');
+                const schedules = await response.json();
+                const scheduleList = document.getElementById('dentist-schedule');
+                scheduleList.innerHTML = '';
+                schedules.forEach(schedule => {
+                    const li = document.createElement('li');
+                    li.className = 'py-2 flex justify-between items-center';
+                    li.innerHTML = `${schedule.full_name}: ${schedule.days}, ${schedule.hours}
+                        <button class="delete-schedule text-red-500 hover:text-red-700" data-id="${schedule.id}">Delete</button>`;
+                    scheduleList.appendChild(li);
+                });
+
+                // Add delete event listeners
+                document.querySelectorAll('.delete-schedule').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const scheduleId = button.dataset.id;
+                        if (confirm('Are you sure you want to delete this schedule?')) {
+                            try {
+                                const response = await fetch(`/api/schedules/${scheduleId}`, {
+                                    method: 'DELETE',
+                                    credentials: 'include'
+                                });
+                                if (!response.ok) throw new Error('Failed to delete schedule');
+                                loadSchedules(); // Refresh list
+                            } catch (err) {
+                                console.error('Delete error:', err);
+                                alert('Failed to delete schedule');
+                            }
+                        }
+                    });
+                });
+            } catch (err) {
+                console.error('Fetch error:', err);
+                alert('Failed to load schedules');
+            }
+        }
+
+        // Load schedules on page load
+        window.addEventListener('load', loadSchedules);
+
+        // Schedule form submission
+        document.getElementById('schedule-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const days = document.getElementById('days').value;
+            const hours = document.getElementById('hours').value;
+
+            if (!days || !hours) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/schedules', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ days, hours }),
+                    credentials: 'include'
+                });
+
+                if (!response.ok) throw new Error('Failed to save schedule');
+                const schedule = await response.json();
+                document.getElementById('schedule-form').reset();
+                loadSchedules(); // Refresh list
+            } catch (err) {
+                console.error('Submit error:', err);
+                alert('Failed to save schedule');
+            }
+        });
+    </script>
+</body>
+</html>

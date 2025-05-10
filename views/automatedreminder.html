@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient Reminders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        /* Navbar styles */
+        .navbar {
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+        .navbar.scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+        }
+        .nav-link {
+            color: #6b7280;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .nav-link:hover {
+            color: #3b82f6;
+            background-color: #f0f0f0;
+        }
+        .nav-logout {
+            color: #6b7280;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            transition: color 0.2s ease, background-color 0.2s ease;
+        }
+        .nav-logout:hover {
+            color: #dc2626;
+            background-color: #f0f0f0;
+        }
+
+        .menu-icon {
+            display: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .bar {
+            width: 25px;
+            height: 3px;
+            background-color: #6b7280;
+            margin: 5px 0;
+            border-radius: 0.375rem;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .menu-icon.active .bar:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .menu-icon.active .bar:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-icon.active .bar:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                flex-direction: column;
+                gap: 0.5rem;
+                width: 100%;
+                margin-top: 1rem;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background-color: white;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                padding-bottom: 1rem;
+            }
+            .nav-links.active {
+                display: flex;
+            }
+            .nav-link {
+                padding: 0.75rem 1rem;
+                width: 100%;
+                text-align: center;
+            }
+            .menu-icon {
+                display: block;
+            }
+            .navbar-content {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .menu-icon {
+                display: none;
+            }
+            .nav-links {
+                display: flex;
+                flex-direction: row;
+            }
+        }
+
+        .section {
+            padding: 5rem 1rem;
+            margin-top: 4rem;
+        }
+
+        .form-container {
+            margin-bottom: 2rem;
+        }
+
+        #reminderList {
+            margin-top: 1rem;
+        }
+
+        .form-input {
+            margin-bottom: 1rem;
+        }
+
+        .record-item {
+            padding: 1rem;
+            background-color: #f7fafc;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav id="navbar" class="navbar bg-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex-wrap">
+            <div class="navbar-content">
+                <a href="/" class="text-2xl font-bold text-blue-600">RPSM Dental Clinic</a>
+                <div class="flex items-center">
+                    <div class="menu-icon" id="menu-icon">
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                        <div class="bar"></div>
+                    </div>
+                    <div class="nav-links" id="nav-links">
+                        <a href="/patient" class="nav-link">Dashboard</a>
+                        <a href="/logout" class="nav-logout">Logout</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <section id="reminder-section" class="section flex items-center justify-center">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+            <h1 class="text-2xl font-bold mb-4 text-center">Patient Reminders</h1>
+            
+            <div class="form-container mb-4">
+                <input id="email" type="email" placeholder="Your email" class="w-full p-2 border rounded mb-2 form-input" required>
+                <input id="reminderMessage" type="text" placeholder="Enter reminder message" class="w-full p-2 border rounded mb-2 form-input" required>
+                <input id="reminderTime" type="datetime-local" class="w-full p-2 border rounded mb-2 form-input" required>
+                <button onclick="addReminder()" class="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600">Add Reminder</button>
+            </div>
+            
+            <ul id="reminderList" class="space-y-2"></ul>
+            <p id="error" class="mt-4 text-center text-red-600 hidden"></p>
+        </div>
+    </section>
+
+    <script>
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+        const navbar = document.getElementById('navbar');
+        if (window.scrollY > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+
+    // Mobile menu toggle
+    const menuIcon = document.getElementById('menu-icon');
+    const navLinks = document.getElementById('nav-links');
+    menuIcon.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        menuIcon.classList.toggle('active');
+    });
+
+    // Load reminders on page load
+    document.addEventListener('DOMContentLoaded', fetchReminders);
+
+    // Add a new reminder
+    async function addReminder() {
+        const email = document.getElementById('email').value;
+        const message = document.getElementById('reminderMessage').value;
+        const remind_at = document.getElementById('reminderTime').value;
+
+        if (!email || !message || !remind_at) {
+            alert('Please fill in all fields.');
+            return;
+        }
+
+        const reminderDateTime = new Date(remind_at);
+        console.log(`Client: remind_at=${remind_at}, parsed=${reminderDateTime.toISOString()}`);
+        if (isNaN(reminderDateTime.getTime())) {
+            alert('Invalid date format. Please select a valid date and time.');
+            return;
+        }
+
+        if (reminderDateTime <= new Date()) {
+            alert('Please select a future time for the reminder.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/reminders', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ email, message, remind_at })
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to add reminder');
+            }
+
+            // Clear form
+            document.getElementById('email').value = '';
+            document.getElementById('reminderMessage').value = '';
+            document.getElementById('reminderTime').value = '';
+
+            // Refresh reminders
+            await fetchReminders();
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+
+    // Fetch and render reminders
+    async function fetchReminders() {
+        try {
+            const response = await fetch('/api/reminders', {
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                throw new Error('Failed to fetch reminders');
+            }
+            const reminders = await response.json();
+            renderReminders(reminders);
+        } catch (err) {
+            alert('Error loading reminders: ' + err.message);
+        }
+    }
+
+    // Render reminders to the UI
+    function renderReminders(reminders) {
+        const reminderList = document.getElementById('reminderList');
+        reminderList.innerHTML = '';
+
+        if (reminders.length === 0) {
+            reminderList.innerHTML = '<p class="text-center text-gray-500">No reminders set.</p>';
+            return;
+        }
+
+        reminders.forEach(reminder => {
+            const date = new Date(reminder.remind_at);
+            const dateString = isNaN(date.getTime()) ? 'Invalid Date' : date.toLocaleString();
+            const li = document.createElement('li');
+            li.className = 'p-2 bg-gray-50 rounded flex justify-between items-center record-item';
+            li.innerHTML = `
+                <div>
+                    <p class="font-medium">Reminder For: ${reminder.email}</p>
+                    <p class="text-sm">${reminder.message} - ${dateString}</p>
+                </div>
+                <button onclick="deleteReminder(${reminder.id})" class="text-red-500 hover:text-red-700">Delete</button>
+            `;
+            reminderList.appendChild(li);
+        });
+    }
+
+    // Delete a reminder
+    async function deleteReminder(id) {
+        try {
+            const response = await fetch(`/api/reminders/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to delete reminder');
+            }
+            await fetchReminders();
+        } catch (err) {
+            alert(err.message);
+        }
+    }
+</script>
+</body>
+</html>
